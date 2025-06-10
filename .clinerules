@@ -38,6 +38,23 @@
 
 -   **Layouts:** Use `ConstraintLayout` as the default root layout for its flexibility. Use `LinearLayout` or `RelativeLayout` for simpler, nested view groups.
 -   **Hardcoded Strings:** **Strictly forbidden.** All user-facing text MUST be defined in `res/values/strings.xml`.
+-   **Text-Based UI Design:**
+    -   All interfaces MUST be implemented using text elements only (TextView, Button etc.)
+    -   Hierarchy principles:
+        - Primary features: `@dimen/text_primary` (24sp bold)
+        - Secondary features: `@dimen/text_secondary` (18sp)
+        - Descriptions: `@dimen/text_description` (14sp)
+    -   Visual separation:
+        - Use `CardView` with `app:cardElevation` for depth
+        - Apply `android:padding` for breathing space
+        - Implement `android:background` with color resources
+    -   Interaction feedback:
+        - Use `android:foreground="?attr/selectableItemBackground"` for ripple effect
+        - Apply text color changes on pressed state
+-   **Aesthetic Principles:**
+    - Maintain consistent vertical rhythm using `@dimen/grid_spacing`
+    - Use typographic hierarchy to establish importance
+    - Ensure proper contrast ratios (min 4.5:1) for accessibility
 -   **Dimensions & Colors:** All dimensions (margins, padding, text sizes) MUST be defined in `res/values/dimens.xml`. All color codes MUST be defined in `res/values/colors.xml`.
 -   **Example `strings.xml` entry:**
     ```xml
@@ -88,4 +105,3 @@
     -   Use **Implicit Intents** to interact with other apps (e.g., `ACTION_DIAL` for the SOS hotline, `ACTION_VIEW` with a geo URI for Maps).
 -   **Sensors:** When implementing a sensor, correctly register and unregister the `SensorEventListener` in the `onResume()` and `onPause()` lifecycle methods, respectively, to conserve battery.
 -   **Permissions:** For sensors like GPS/Location, ensure the app requests the necessary permissions in `AndroidManifest.xml` and implements runtime permission checks for Android 6.0 (API 23) and above.
-
