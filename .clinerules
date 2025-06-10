@@ -9,7 +9,17 @@
     -   Do NOT implement or suggest complex architectural patterns like MVVM, MVP, MVI, or use components like `ViewModel`, Repositories, or Service layers.
 -   **Dependencies:** Do NOT introduce new third-party libraries (e.g., Glide, Retrofit, Dagger/Hilt). We are only using the standard Android SDK, AndroidX libraries, and the pre-configured Firebase Firestore dependency.
 
-## 2. Java Coding Conventions
+## 2. Project Context & High-Level Plan (IMPORTANT)
+
+-   **Source of Truth:** The overall project structure, feature list, and scope are defined in `/cline_docs/project_plan.md`. This document is the "source of truth" for **WHAT** we are building. This `.clinerules` file defines **HOW** we build it.
+-   **When to Refer to the Plan:** Before generating code for a new feature or activity, you MUST consult `/cline_docs/project_plan.md` to understand its context. Refer to the plan especially when:
+    1.  **A prompt is high-level:** e.g., "Create the SOS page." You must check the plan to know that this page requires a button for an implicit phone call intent and another button for a GPS-based maps intent.
+    2.  **Implementing a sensor:** e.g., "Implement Member 4's sensor feature." You must check the plan to identify that Member 4 is assigned the Accelerometer for a "Shake for a Tip" feature.
+    3.  **Determining the purpose of a screen:** e.g., "Build the main dashboard." The plan specifies this should be a `GridView` or `RecyclerView` that acts as a navigation hub to all other features.
+    4.  **Confirming data requirements:** e.g., "Code the mood tracker." The plan specifies it needs an emoji slider, a stress slider, and a journal entry field. This complements the Firestore structure defined in these rules.
+    5.  **A request seems out of scope:** If a request does not align with the 10 activities or the focus area described in the plan, you should flag it as a deviation from the project plan.
+
+## 3. Java Coding Conventions
 
 -   **Naming Conventions:**
     -   **Activities:** `PascalCase` ending with `Activity` (e.g., `LoginActivity`, `DashboardActivity`).
@@ -24,7 +34,7 @@
     -   Initialize all listeners in a dedicated method called `initListeners()` which is called from `onCreate()`.
 -   **Comments:** Use `//` for single-line comments and `/** ... */` for method-level Javadoc-style comments explaining what a method does, its parameters, and what it returns.
 
-## 3. XML Layout & Resource Guidelines
+## 4. XML Layout & Resource Guidelines
 
 -   **Layouts:** Use `ConstraintLayout` as the default root layout for its flexibility. Use `LinearLayout` or `RelativeLayout` for simpler, nested view groups.
 -   **Hardcoded Strings:** **Strictly forbidden.** All user-facing text MUST be defined in `res/values/strings.xml`.
@@ -38,7 +48,7 @@
     <dimen name="default_margin">16dp</dimen>
     ```
 
-## 4. Firebase Firestore Interaction Rules
+## 5. Firebase Firestore Interaction Rules
 
 -   **Authentication:** We are **NOT using Firebase Authentication**.
     -   **Registration:** To register a user, create a new document in the `users` collection with plaintext `username` and `password` fields.
@@ -65,7 +75,7 @@
     -   Use `Log.e(TAG, "Error message", exception);` inside `onFailure` listeners.
 -   **Real-time Updates:** For the Anonymous Chatroom, use `addSnapshotListener()` to listen for real-time changes to the `chat_messages` collection.
 
-## 5. Android Component Usage
+## 6. Android Component Usage
 
 -   **Intents:**
     -   Use **Explicit Intents** to navigate between activities within our app. Always pass necessary data (like the logged-in username) via `intent.putExtra()`.
