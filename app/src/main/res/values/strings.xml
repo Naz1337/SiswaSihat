@@ -8,6 +8,7 @@
     <string name="login_link_text">Already have an account? Login</string>
     <string name="login_failed">Invalid credentials</string>
     <string name="dashboard_title">CampusCalm Dashboard</string>
+    <string name="logout_button_text">Logout</string>
     <string name="planner">Study-Life Planner</string>
     <string name="mood_tracker">Mood Tracker</string>
     <string name="chill_space">Chill Space</string>

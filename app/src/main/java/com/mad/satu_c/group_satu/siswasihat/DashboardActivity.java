@@ -6,12 +6,14 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import android.widget.Button;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class DashboardActivity extends AppCompatActivity {
     private static final String TAG = "DashboardActivity";
     private RecyclerView recyclerView;
+    private Button buttonLogout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,10 +31,18 @@ public class DashboardActivity extends AppCompatActivity {
         String[] features = getResources().getStringArray(R.array.dashboard_features);
         DashboardAdapter adapter = new DashboardAdapter(this, features);
         recyclerView.setAdapter(adapter);
+
+        buttonLogout = findViewById(R.id.buttonLogout);
     }
 
     private void initListeners() {
         // Listeners are handled within the DashboardAdapter now
+        buttonLogout.setOnClickListener(v -> {
+            Intent intent = new Intent(DashboardActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
+        });
     }
 
 }
