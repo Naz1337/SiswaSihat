@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/default_margin">
+
+    <EditText
+        android:id="@+id/editTextEventTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/event_title"
+        android:inputType="textCapSentences"
+        android:layout_marginBottom="@dimen/default_margin" />
+
+    <EditText
+        android:id="@+id/editTextEventDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/event_description"
+        android:inputType="textMultiLine"
+        android:lines="3"
+        android:gravity="top"
+        android:layout_marginBottom="@dimen/default_margin" />
+
+    <TextView
+        android:id="@+id/textViewEventDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/event_date"
+        android:padding="@dimen/default_padding"
+        android:background="@drawable/border_bottom"
+        android:clickable="true"
+        android:focusable="true"
+        android:textSize="@dimen/text_secondary"
+        android:layout_marginBottom="@dimen/default_margin" />
+
+</LinearLayout>

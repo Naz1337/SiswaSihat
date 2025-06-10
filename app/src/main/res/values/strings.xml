@@ -1,5 +1,10 @@
 <resources>
     <string name="app_name">CampusCalm</string>
+    <string name="planner_title">Study-Life Balance Planner</string>
+    <string name="add_event">Add Event</string>
+    <string name="event_title">Title</string>
+    <string name="event_description">Description</string>
+    <string name="event_date">Date</string>
     <string name="username_hint">Username</string>
     <string name="password_hint">Password</string>
     <string name="login_button_text">Login</string>

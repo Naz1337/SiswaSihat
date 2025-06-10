@@ -16,6 +16,7 @@ public class DashboardAdapter extends RecyclerView.Adapter<DashboardAdapter.View
     private static final String TAG = "DashboardAdapter";
     private String[] localDataSet;
     private AppCompatActivity activity;
+    private String username; // Add username field
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView tvFeatureName;
@@ -28,9 +29,10 @@ public class DashboardAdapter extends RecyclerView.Adapter<DashboardAdapter.View
         }
     }
 
-    public DashboardAdapter(AppCompatActivity activity, String[] dataSet) {
+    public DashboardAdapter(AppCompatActivity activity, String[] dataSet, String username) { // Add username to constructor
         this.activity = activity;
-        localDataSet = dataSet;
+        this.localDataSet = dataSet;
+        this.username = username; // Initialize username
     }
 
     @Override
@@ -53,13 +55,12 @@ public class DashboardAdapter extends RecyclerView.Adapter<DashboardAdapter.View
                 Log.d(TAG, "Clicked on: " + featureName);
                 Toast.makeText(activity, "Opening " + featureName, Toast.LENGTH_SHORT).show();
 
-                // TODO: Implement explicit intents for each feature
-                // Example:
-                // if (featureName.equals(activity.getString(R.string.planner))) {
-                //     activity.startActivity(new Intent(activity, PlannerActivity.class));
-                // } else if (featureName.equals(activity.getString(R.string.mood_tracker))) {
-                //     activity.startActivity(new Intent(activity, MoodTrackerActivity.class));
-                // }
+                if (featureName.equals(activity.getString(R.string.planner))) {
+                    Intent intent = new Intent(activity, PlannerActivity.class);
+                    intent.putExtra("USERNAME", username); // Pass the username
+                    activity.startActivity(intent);
+                }
+                // TODO: Add else if for other features as they are implemented
             }
         });
     }
