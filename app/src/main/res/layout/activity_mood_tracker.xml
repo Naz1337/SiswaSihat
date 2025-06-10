@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/mood_tracker_bg"
+    android:padding="@dimen/mood_tracker_margin"
+    tools:context=".MoodTrackerActivity">
+
+    <TextView
+        android:id="@+id/textViewMoodTrackerTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/mood_tracker_title"
+        android:textSize="@dimen/text_primary"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="@dimen/default_margin" />
+
+    <TextView
+        android:id="@+id/textViewMoodLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/mood_label"
+        android:textSize="@dimen/text_secondary"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@+id/textViewMoodTrackerTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="@dimen/default_margin" />
+
+    <LinearLayout
+        android:id="@+id/moodSliderLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toBottomOf="@+id/textViewMoodLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="@dimen/grid_spacing">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="😞"
+            android:textSize="30sp"
+            android:layout_marginEnd="@dimen/grid_spacing" />
+
+        <SeekBar
+            android:id="@+id/moodSlider"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/slider_height"
+            android:layout_weight="1"
+            android:max="4"
+            android:progress="2"
+            android:thumbTint="@color/slider_track"
+            android:progressTint="@color/slider_track" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="😊"
+            android:textSize="30sp"
+            android:layout_marginStart="@dimen/grid_spacing" />
+
+        <TextView
+            android:id="@+id/moodEmoji"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="30sp"
+            android:layout_marginStart="@dimen/grid_spacing"
+            tools:text="😐" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textViewStressLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/stress_label"
+        android:textSize="@dimen/text_secondary"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@+id/moodSliderLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="@dimen/default_margin" />
+
+    <LinearLayout
+        android:id="@+id/stressSliderLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toBottomOf="@+id/textViewStressLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="@dimen/grid_spacing">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1"
+            android:textSize="20sp"
+            android:layout_marginEnd="@dimen/grid_spacing" />
+
+        <SeekBar
+            android:id="@+id/stressSlider"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/slider_height"
+            android:layout_weight="1"
+            android:max="9"
+            android:progress="0"
+            android:thumbTint="@color/slider_track"
+            android:progressTint="@color/slider_track" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10"
+            android:textSize="20sp"
+            android:layout_marginStart="@dimen/grid_spacing" />
+
+        <TextView
+            android:id="@+id/stressValueText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:layout_marginStart="@dimen/grid_spacing"
+            tools:text="1" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textViewJournalLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/journal_entry_label"
+        android:textSize="@dimen/text_secondary"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@+id/stressSliderLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="@dimen/default_margin" />
+
+    <EditText
+        android:id="@+id/journalField"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:minHeight="100dp"
+        android:gravity="top"
+        android:hint="@string/journal_hint"
+        android:padding="@dimen/grid_spacing"
+        android:background="@drawable/border_bottom"
+        app:layout_constraintTop_toBottomOf="@+id/textViewJournalLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="@dimen/grid_spacing"
+        android:inputType="textMultiLine" />
+
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/save_button"
+        android:backgroundTint="@color/slider_track"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/journalField"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="@dimen/default_margin" />
+
+    <Button
+        android:id="@+id/buttonViewHistory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/view_history"
+        android:backgroundTint="@color/slider_track"
+        android:textColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@+id/saveButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="@dimen/default_margin" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

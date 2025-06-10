@@ -33,4 +33,13 @@
         <item>@string/chatroom</item>
         <item>@string/breathing</item>
     </string-array>
+    <string name="mood_tracker_title">Mood Tracker</string>
+    <string name="mood_label">How are you feeling today?</string>
+    <string name="stress_label">Stress Level (1-10)</string>
+    <string name="journal_entry_label">Journal Entry</string>
+    <string name="journal_hint">Journal your thoughts...</string>
+    <string name="save_button">Save Entry</string>
+    <string name="mood_history_title">Mood History</string>
+    <string name="back_to_mood_tracker">Back to Mood Tracker</string>
+    <string name="view_history">View History</string>
 </resources>

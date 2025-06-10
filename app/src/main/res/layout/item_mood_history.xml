@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/grid_spacing"
+    app:cardElevation="4dp"
+    app:cardCornerRadius="8dp"
+    android:background="@color/card_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/default_margin">
+
+        <TextView
+            android:id="@+id/textViewDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_secondary"
+            android:textStyle="bold"
+            android:textColor="@color/primary_text"
+            tools:text="11/06/2025 10:30 AM" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="@dimen/grid_spacing"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/textViewMoodEmoji"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="30sp"
+                android:layout_marginEnd="@dimen/default_padding"
+                tools:text="😊" />
+
+            <TextView
+                android:id="@+id/textViewStressLevel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+            android:textSize="@dimen/text_secondary"
+            android:textColor="@color/secondary_text"
+            tools:text="Stress: 5/10" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textViewJournalPreview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/grid_spacing"
+            android:textSize="@dimen/text_description"
+            android:textColor="@color/primary_text"
+            android:maxLines="3"
+            android:ellipsize="end"
+            tools:text="This is a sample journal entry that might be quite long and needs to be truncated to fit within the available space." />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

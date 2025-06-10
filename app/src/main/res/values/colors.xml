@@ -5,4 +5,6 @@
     <color name="card_background">#F5F5F5</color>
     <color name="primary_text">#212121</color>
     <color name="secondary_text">#757575</color>
+    <color name="mood_tracker_bg">#F5F7FA</color>
+    <color name="slider_track">#4CAF50</color>
 </resources>

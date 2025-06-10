@@ -32,6 +32,12 @@
         <activity
             android:name=".DashboardActivity"
             android:exported="false" />
+        <activity
+            android:name=".MoodTrackerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MoodHistoryActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
