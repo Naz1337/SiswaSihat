@@ -6,4 +6,20 @@
     </style>
 
     <style name="Theme.SiswaSihat" parent="Base.Theme.SiswaSihat" />
+
+    <style name="TextAppearance.PrimaryFeature" parent="android:TextAppearance">
+        <item name="android:textSize">@dimen/text_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="TextAppearance.SecondaryFeature" parent="android:TextAppearance">
+        <item name="android:textSize">@dimen/text_secondary</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="TextAppearance.Description" parent="android:TextAppearance">
+        <item name="android:textSize">@dimen/text_description</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
 </resources>

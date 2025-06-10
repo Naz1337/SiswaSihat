@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="default_margin">16dp</dimen>
+    <dimen name="large_margin">32dp</dimen>
     <dimen name="text_primary">24sp</dimen>
     <dimen name="text_secondary">18sp</dimen>
     <dimen name="text_description">14sp</dimen>
