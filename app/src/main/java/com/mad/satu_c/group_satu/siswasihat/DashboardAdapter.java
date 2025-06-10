@@ -63,6 +63,10 @@ public class DashboardAdapter extends RecyclerView.Adapter<DashboardAdapter.View
                     Intent intent = new Intent(activity, MoodTrackerActivity.class);
                     intent.putExtra("USERNAME", username); // Pass the username
                     activity.startActivity(intent);
+                } else if (featureName.equals(activity.getString(R.string.mental_health_quiz))) {
+                    Intent intent = new Intent(activity, AnxietyQuizActivity.class);
+                    intent.putExtra("USERNAME", username); // Pass the username
+                    activity.startActivity(intent);
                 }
                 // TODO: Add else if for other features as they are implemented
             }

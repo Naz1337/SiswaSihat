@@ -31,12 +31,18 @@
             android:exported="false" />
         <activity
             android:name=".DashboardActivity"
-            android:exported="false" />
+            android:exported="true" />
         <activity
             android:name=".MoodTrackerActivity"
             android:exported="false" />
         <activity
             android:name=".MoodHistoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AnxietyQuizActivity"
+            android:exported="true" />
+        <activity
+            android:name=".QuizResultActivity"
             android:exported="false" />
     </application>
 

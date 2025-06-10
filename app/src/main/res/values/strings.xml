@@ -32,6 +32,7 @@
         <item>@string/sos</item>
         <item>@string/chatroom</item>
         <item>@string/breathing</item>
+        <item>@string/mental_health_quiz</item>
     </string-array>
     <string name="mood_tracker_title">Mood Tracker</string>
     <string name="mood_label">How are you feeling today?</string>
@@ -42,4 +43,14 @@
     <string name="mood_history_title">Mood History</string>
     <string name="back_to_mood_tracker">Back to Mood Tracker</string>
     <string name="view_history">View History</string>
+    <string name="mental_health_quiz">Mental Health Quiz</string>
+    <string name="anxiety_quiz_title">Anxiety Self-Assessment Quiz</string>
+    <string name="previous_button">Previous</string>
+    <string name="next_button">Next</string>
+    <string name="submit_button">Submit</string>
+    <string name="quiz_result_title">Quiz Results</string>
+    <string name="your_score_is">Your score is:</string>
+    <string name="interpretation_label">Interpretation:</string>
+    <string name="retake_quiz_button">Retake Quiz</string>
+    <string name="back_to_dashboard_button">Back to Dashboard</string>
 </resources>
