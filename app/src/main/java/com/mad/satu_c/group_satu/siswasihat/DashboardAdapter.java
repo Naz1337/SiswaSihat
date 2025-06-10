@@ -67,6 +67,10 @@ public class DashboardAdapter extends RecyclerView.Adapter<DashboardAdapter.View
                     Intent intent = new Intent(activity, AnxietyQuizActivity.class);
                     intent.putExtra("USERNAME", username); // Pass the username
                     activity.startActivity(intent);
+                } else if (featureName.equals(activity.getString(R.string.focus_zone))) {
+                    Intent intent = new Intent(activity, FocusZoneActivity.class);
+                    intent.putExtra("USERNAME", username); // Pass the username
+                    activity.startActivity(intent);
                 }
                 // TODO: Add else if for other features as they are implemented
             }

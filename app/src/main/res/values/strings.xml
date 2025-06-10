@@ -24,6 +24,7 @@
     <string name="steps_today_label">Steps Today:</string>
     <string name="goal_label">Goal:</string>
     <string name="set_step_goal">Set Goal</string>
+    <string name="focus_zone">Focus Zone</string>
 
     <string-array name="dashboard_features">
         <item>@string/planner</item>
@@ -33,6 +34,7 @@
         <item>@string/chatroom</item>
         <item>@string/breathing</item>
         <item>@string/mental_health_quiz</item>
+        <item>@string/focus_zone</item>
     </string-array>
     <string name="mood_tracker_title">Mood Tracker</string>
     <string name="mood_label">How are you feeling today?</string>
