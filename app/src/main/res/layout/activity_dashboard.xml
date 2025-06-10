@@ -18,15 +18,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <GridView
-        android:id="@+id/gridView"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:numColumns="2"
-        android:verticalSpacing="@dimen/grid_spacing"
-        android:horizontalSpacing="@dimen/grid_spacing"
         android:padding="@dimen/grid_spacing"
-        android:stretchMode="columnWidth"
         app:layout_constraintTop_toBottomOf="@id/tvDashboardTitle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
