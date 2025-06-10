@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,9 +35,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import java.util.Map;
 
-public class PlannerActivity extends AppCompatActivity {
+public class PlannerActivity extends AppCompatActivity implements SensorEventListener {
     private static final String TAG = "PlannerActivity";
     private String username;
     private FirebaseFirestore db;
@@ -44,6 +51,26 @@ public class PlannerActivity extends AppCompatActivity {
     private ArrayAdapter<String> adapter;
     private ListView listViewEvents;
     private Button buttonAddEvent;
+
+    // Step Counter variables
+    private SensorManager sensorManager;
+    private Sensor stepSensor;
+    private boolean isStepSensorPresent;
+    private int currentSteps = 0;
+    private long lastResetDay = 0; // Store the day of the year when steps were last reset
+
+    private TextView textViewStepsToday;
+    private TextView textViewStepGoal;
+    private ProgressBar progressBarSteps;
+    private Button buttonSetStepGoal;
+    private TextView textViewSensorStatus;
+
+    private SharedPreferences sharedPreferences;
+    private static final String PREF_NAME = "StepCounterPrefs";
+    private static final String PREF_CURRENT_STEPS = "currentSteps";
+    private static final String PREF_LAST_RESET_DAY = "lastResetDay";
+    private static final String PREF_STEP_GOAL = "stepGoal";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,12 +88,67 @@ public class PlannerActivity extends AppCompatActivity {
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
 
+        // Initialize SharedPreferences
+        sharedPreferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+
         // Initialize views and adapter
         initViews();
         initListeners();
 
         // Load events
         loadEvents();
+
+        // Initialize Step Counter
+        initStepCounter();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (isStepSensorPresent) {
+            if (sensorManager == null) {
+                Log.e(TAG, "SensorManager is null in onResume(), re-initializing.");
+                sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+            }
+
+            if (sensorManager != null) {
+                // Re-check sensor availability at registration time
+                Sensor currentSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+                if (currentSensor == null) {
+                    Log.e(TAG, "Step detector sensor no longer available in onResume().");
+                    isStepSensorPresent = false; // Update flag if sensor disappeared
+                    textViewSensorStatus.setText("Sensor Unavailable: Sensor disappeared");
+                } else {
+                    Log.d(TAG, "Attempting to register step detector listener with delay: " + SensorManager.SENSOR_DELAY_NORMAL);
+                    boolean registered = sensorManager.registerListener(this, currentSensor, SensorManager.SENSOR_DELAY_NORMAL);
+                    if (registered) {
+                        Log.d(TAG, "Step detector listener registered successfully in onResume().");
+                        textViewSensorStatus.setText("Sensor Status: Active");
+                    } else {
+                        Log.e(TAG, "Failed to register step detector listener in onResume(). Possible reasons: " +
+                                "1. Sensor already registered (unlikely if onPause() works), " +
+                                "2. Insufficient permissions (unlikely for step detector), " +
+                                "3. Sensor temporarily unavailable or busy.");
+                        textViewSensorStatus.setText("Sensor Status: Busy - Close other fitness apps");
+                        Toast.makeText(this, "Sensor busy - check other apps", Toast.LENGTH_LONG).show();
+                    }
+                }
+            } else {
+                Log.e(TAG, "Sensor service unavailable after re-initialization in onResume().");
+                textViewSensorStatus.setText("Sensor Unavailable: Service not found");
+            }
+        }
+        loadStepData(); // Load step data when activity resumes
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (isStepSensorPresent) {
+            sensorManager.unregisterListener(this);
+            Log.d(TAG, "Step detector listener unregistered in onPause()");
+        }
+        saveStepData(); // Save step data when activity pauses
     }
 
     private void initViews() {
@@ -75,6 +157,13 @@ public class PlannerActivity extends AppCompatActivity {
         eventsList = new ArrayList<>();
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<String>());
         listViewEvents.setAdapter(adapter);
+
+        // Initialize Step Counter UI elements
+        textViewStepsToday = findViewById(R.id.textViewStepsToday);
+        textViewStepGoal = findViewById(R.id.textViewStepGoal);
+        progressBarSteps = findViewById(R.id.progressBarSteps);
+        buttonSetStepGoal = findViewById(R.id.buttonSetStepGoal);
+        textViewSensorStatus = findViewById(R.id.textViewSensorStatus);
     }
 
     private void initListeners() {
@@ -101,6 +190,220 @@ public class PlannerActivity extends AppCompatActivity {
                 return true; // Consume the long click
             }
         });
+
+        buttonSetStepGoal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showSetStepGoalDialog();
+            }
+        });
+    }
+
+    private void initStepCounter() {
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        if (sensorManager != null) {
+            Log.d(TAG, "Checking for step detector sensor...");
+            stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+            if (stepSensor == null) {
+                Toast.makeText(this, "Step Detector Sensor not available!", Toast.LENGTH_LONG).show();
+                isStepSensorPresent = false;
+                Log.e(TAG, "Step detector sensor not available on this device");
+                textViewSensorStatus.setText("Sensor Unavailable: Device lacks step detector");
+            } else {
+                isStepSensorPresent = true;
+                Log.d(TAG, "Step detector sensor available");
+                textViewSensorStatus.setText("Sensor Status: Ready");
+            }
+        } else {
+            Toast.makeText(this, "Sensor service not available!", Toast.LENGTH_LONG).show();
+            isStepSensorPresent = false;
+            Log.e(TAG, "Sensor service not available!");
+            textViewSensorStatus.setText("Sensor Unavailable: Service not found");
+        }
+        loadStepData(); // Load initial step data
+        updateStepCounterUI();
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        Log.d(TAG, "Sensor event received: " + event.sensor.getName() + " Type: " + event.sensor.getType());
+        if (event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
+            currentSteps++; // Increment for each detected step
+
+            Log.d(TAG, "Step detected. Current steps: " + currentSteps);
+
+            // Check for daily reset
+            Calendar calendar = Calendar.getInstance();
+            long currentDay = calendar.get(Calendar.DAY_OF_YEAR);
+
+            if (currentDay != lastResetDay) {
+                // New day, reset steps
+                currentSteps = 0;
+                lastResetDay = currentDay;
+                saveStepData(); // Save new reset day
+                Toast.makeText(this, "Daily step count reset!", Toast.LENGTH_SHORT).show();
+            }
+
+            textViewStepsToday.setText(String.valueOf(currentSteps));
+            updateProgressBar(currentSteps);
+            saveStepData(); // Save steps after each increment
+            textViewSensorStatus.setText("Sensor Status: Active - " + currentSteps + " steps");
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // Not used for step counter
+    }
+
+    private void updateProgressBar(int currentSteps) {
+        int stepGoal = sharedPreferences.getInt(PREF_STEP_GOAL, 0);
+        if (stepGoal > 0) {
+            progressBarSteps.setMax(stepGoal);
+            progressBarSteps.setProgress(Math.min(currentSteps, stepGoal));
+        } else {
+            progressBarSteps.setMax(1); // Avoid division by zero if goal is 0
+            progressBarSteps.setProgress(0);
+        }
+    }
+
+    private void updateStepCounterUI() {
+        int currentSteps = sharedPreferences.getInt(PREF_CURRENT_STEPS, 0);
+        int stepGoal = sharedPreferences.getInt(PREF_STEP_GOAL, 0);
+
+        textViewStepsToday.setText(String.valueOf(currentSteps));
+        textViewStepGoal.setText(String.valueOf(stepGoal));
+        updateProgressBar(currentSteps);
+    }
+
+    private void saveStepData() {
+        // This method will now trigger a Firestore update
+        updateUserStepDataInFirestore();
+    }
+
+    private void loadStepData() {
+        db.collection("users")
+                .whereEqualTo("username", username)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            Map<String, Object> userData = queryDocumentSnapshots.getDocuments().get(0).getData();
+                            currentSteps = ((Long) userData.getOrDefault("currentSteps", 0L)).intValue();
+                            lastResetDay = ((Long) userData.getOrDefault("lastResetDay", 0L)).longValue();
+                            int stepGoal = ((Long) userData.getOrDefault("stepGoal", 0L)).intValue();
+
+                            // Update SharedPreferences for local access (optional, but good for consistency)
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putInt(PREF_CURRENT_STEPS, currentSteps);
+                            editor.putLong(PREF_LAST_RESET_DAY, lastResetDay);
+                            editor.putInt(PREF_STEP_GOAL, stepGoal);
+                            editor.apply();
+
+                            Log.d(TAG, "Step data loaded from Firestore: currentSteps=" + currentSteps + ", lastResetDay=" + lastResetDay + ", stepGoal=" + stepGoal);
+
+                            // Check for daily reset on load as well
+                            Calendar calendar = Calendar.getInstance();
+                            long currentDay = calendar.get(Calendar.DAY_OF_YEAR);
+                            if (currentDay != lastResetDay) {
+                                currentSteps = 0; // Reset steps for the new day
+                                lastResetDay = currentDay;
+                                updateUserStepDataInFirestore(); // Save new reset day to Firestore
+                                Toast.makeText(PlannerActivity.this, "Daily step count reset!", Toast.LENGTH_SHORT).show();
+                            }
+                            updateStepCounterUI();
+                        } else {
+                            Log.d(TAG, "User document not found for step data.");
+                            // Initialize with default values if user data not found
+                            currentSteps = 0;
+                            lastResetDay = 0;
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putInt(PREF_CURRENT_STEPS, 0);
+                            editor.putLong(PREF_LAST_RESET_DAY, 0);
+                            editor.putInt(PREF_STEP_GOAL, 0);
+                            editor.apply();
+                            updateStepCounterUI();
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG, "Error loading step data from Firestore", e);
+                        Toast.makeText(PlannerActivity.this, "Error loading step data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void updateUserStepDataInFirestore() {
+        db.collection("users")
+                .whereEqualTo("username", username)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            String userId = queryDocumentSnapshots.getDocuments().get(0).getId();
+                            Map<String, Object> updates = new HashMap<>();
+                            updates.put("currentSteps", currentSteps);
+                            updates.put("lastResetDay", lastResetDay);
+                            updates.put("stepGoal", sharedPreferences.getInt(PREF_STEP_GOAL, 0)); // Get goal from SharedPreferences for now
+
+                            db.collection("users").document(userId)
+                                    .update(updates)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Log.d(TAG, "Step data updated in Firestore for user: " + username);
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.e(TAG, "Error updating step data in Firestore", e);
+                                        }
+                                    });
+                        } else {
+                            Log.e(TAG, "User document not found for updating step data.");
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG, "Error querying user for step data update", e);
+                    }
+                });
+    }
+
+    private void showSetStepGoalDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Set Daily Step Goal");
+        final EditText input = new EditText(this);
+        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        input.setHint("e.g., 10000");
+        builder.setView(input);
+
+        builder.setPositiveButton("Set", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String goalStr = input.getText().toString();
+                if (!goalStr.isEmpty()) {
+                    int newGoal = Integer.parseInt(goalStr);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putInt(PREF_STEP_GOAL, newGoal);
+                    editor.apply(); // Save to SharedPreferences first
+                    updateUserStepDataInFirestore(); // Then update Firestore
+                    updateStepCounterUI();
+                    Toast.makeText(PlannerActivity.this, "Step goal set to " + newGoal, Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(PlannerActivity.this, "Please enter a valid goal", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
     }
 
     private void showAddEventDialog(final Map<String, Object> eventToEdit) {
