@@ -24,6 +24,8 @@ public class DashboardActivity extends AppCompatActivity {
     private void initViews() {
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2)); // 2 columns
+        int spacing = getResources().getDimensionPixelSize(R.dimen.grid_spacing); // 16dp
+        recyclerView.addItemDecoration(new GridSpacingItemDecoration(2, spacing, true));
         String[] features = getResources().getStringArray(R.array.dashboard_features);
         DashboardAdapter adapter = new DashboardAdapter(this, features);
         recyclerView.setAdapter(adapter);
