@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">SiswaSihat</string>
+    <string name="dashboard_title">CampusCalm Dashboard</string>
+    <string name="planner">Study-Life Planner</string>
+    <string name="mood_tracker">Mood Tracker</string>
+    <string name="chill_space">Chill Space</string>
+    <string name="sos">SOS Help</string>
+    <string name="chatroom">Anonymous Chat</string>
+    <string name="breathing">Breathing Exercise</string>
+
+    <string-array name="dashboard_features">
+        <item>@string/planner</item>
+        <item>@string/mood_tracker</item>
+        <item>@string/chill_space</item>
+        <item>@string/sos</item>
+        <item>@string/chatroom</item>
+        <item>@string/breathing</item>
+    </string-array>
 </resources>
