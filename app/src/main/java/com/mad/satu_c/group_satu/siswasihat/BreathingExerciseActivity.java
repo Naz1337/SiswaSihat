@@ -1,6 +1,7 @@
 package com.mad.satu_c.group_satu.siswasihat;
 
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -18,8 +19,10 @@ public class BreathingExerciseActivity extends AppCompatActivity {
 
     private static final String TAG = "BreathingExerciseActivity";
     private TextView tvBreathingStatus;
+    private TextView tvTimer;
     private Button btnStartExercise;
     private FirebaseFirestore db;
+    private CountDownTimer countDownTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +35,7 @@ public class BreathingExerciseActivity extends AppCompatActivity {
 
     private void initViews() {
         tvBreathingStatus = findViewById(R.id.tvBreathingStatus);
+        tvTimer = findViewById(R.id.tvTimer);
         btnStartExercise = findViewById(R.id.btnStartExercise);
     }
 
@@ -46,38 +50,32 @@ public class BreathingExerciseActivity extends AppCompatActivity {
 
     private void startBreathingExercise() {
         tvBreathingStatus.setText(R.string.breathing_in);
-        // Simulate breathing exercise steps
-        new Thread(new Runnable() {
+        startTimer(4000, R.string.breathing_in);
+    }
+
+    private void startTimer(long millisInFuture, final int statusText) {
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
+        countDownTimer = new CountDownTimer(millisInFuture, 1000) {
             @Override
-            public void run() {
-                try {
-                    Thread.sleep(4000); // Breathe in for 4 seconds
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            tvBreathingStatus.setText(R.string.breathing_hold);
-                        }
-                    });
-                    Thread.sleep(4000); // Hold for 4 seconds
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            tvBreathingStatus.setText(R.string.breathing_out);
-                        }
-                    });
-                    Thread.sleep(4000); // Breathe out for 4 seconds
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            tvBreathingStatus.setText(R.string.breathing_complete);
-                            logBreathingExercise();
-                        }
-                    });
-                } catch (InterruptedException e) {
-                    Log.e(TAG, "Breathing exercise interrupted", e);
+            public void onTick(long millisUntilFinished) {
+                tvTimer.setText(String.valueOf(millisUntilFinished / 1000));
+            }
+
+            @Override
+            public void onFinish() {
+                tvBreathingStatus.setText(statusText);
+                if (statusText == R.string.breathing_in) {
+                    startTimer(4000, R.string.breathing_hold);
+                } else if (statusText == R.string.breathing_hold) {
+                    startTimer(4000, R.string.breathing_out);
+                } else if (statusText == R.string.breathing_out) {
+                    tvBreathingStatus.setText(R.string.breathing_complete);
+                    logBreathingExercise();
                 }
             }
-        }).start();
+        }.start();
     }
 
     private void logBreathingExercise() {

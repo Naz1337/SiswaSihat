@@ -54,6 +54,10 @@
         <activity
             android:name=".BreathingExerciseActivity"
             android:exported="false" />
+        <activity
+            android:name=".AudioPlayerActivity"
+            android:exported="false" />
+
 
 
     </application>

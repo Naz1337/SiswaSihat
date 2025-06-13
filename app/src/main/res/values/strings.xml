@@ -88,4 +88,10 @@
     <string name="start_exercise">Start Exercise</string>
     <string name="exercise_logged">Exercise logged successfully!</string>
     <string name="error_logging_exercise">Error logging exercise</string>
+
+    <!-- Audio Player Activity -->
+    <string name="play">Play</string>
+    <string name="pause">Pause</string>
+    <string name="stop">Stop</string>
+    <string name="audio_complete">Audio playback complete</string>
 </resources>
