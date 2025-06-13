@@ -13,7 +13,8 @@
         android:textColor="@color/primary_text"
         android:textSize="14sp"
         android:textStyle="bold"
-        android:text="Username" />
+        android:text="Username"
+        android:visibility="gone" />
 
     <LinearLayout
         android:layout_width="wrap_content"
