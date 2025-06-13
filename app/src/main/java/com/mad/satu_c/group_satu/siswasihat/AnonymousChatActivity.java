@@ -120,6 +120,8 @@ public class AnonymousChatActivity extends AppCompatActivity {
 
                         for (DocumentChange dc : snapshots.getDocumentChanges()) {
                             ChatMessage message = dc.getDocument().toObject(ChatMessage.class);
+                            // Ensure messageId is set from the document ID
+                            message.setMessageId(dc.getDocument().getId());
                             switch (dc.getType()) {
                                 case ADDED:
                                     chatAdapter.addMessage(message);
@@ -183,4 +185,3 @@ public class AnonymousChatActivity extends AppCompatActivity {
         });
     }
 }
-

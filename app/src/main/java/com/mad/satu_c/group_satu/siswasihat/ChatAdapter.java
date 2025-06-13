@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -39,8 +40,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     }
 
     public void updateMessage(ChatMessage message) {
+        if (message == null || message.getMessageId() == null) {
+            Log.w("ChatAdapter", "Attempted to update a null message or message with null ID.");
+            return;
+        }
         for (int i = 0; i < chatMessages.size(); i++) {
-            if (chatMessages.get(i).getMessageId().equals(message.getMessageId())) {
+            if (chatMessages.get(i) != null && chatMessages.get(i).getMessageId() != null &&
+                chatMessages.get(i).getMessageId().equals(message.getMessageId())) {
                 chatMessages.set(i, message);
                 notifyItemChanged(i);
                 return;
@@ -49,8 +55,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     }
 
     public void removeMessage(ChatMessage message) {
+        if (message == null || message.getMessageId() == null) {
+            Log.w("ChatAdapter", "Attempted to remove a null message or message with null ID.");
+            return;
+        }
         for (int i = 0; i < chatMessages.size(); i++) {
-            if (chatMessages.get(i).getMessageId().equals(message.getMessageId())) {
+            if (chatMessages.get(i) != null && chatMessages.get(i).getMessageId() != null &&
+                chatMessages.get(i).getMessageId().equals(message.getMessageId())) {
                 chatMessages.remove(i);
                 notifyItemRemoved(i);
                 return;
@@ -135,4 +146,3 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         }
     }
 }
-
