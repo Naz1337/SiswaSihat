@@ -1,5 +1,6 @@
 package com.mad.satu_c.group_satu.siswasihat;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -24,6 +25,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class AnonymousChatActivity extends AppCompatActivity {
 
@@ -35,7 +37,9 @@ public class AnonymousChatActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private EditText messageInput;
     private Button sendButton;
+    private Button clearChatButton; // New button for clearing chat
     private ChatAdapter chatAdapter;
+    private String currentUsername; // To store the logged-in username
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +48,16 @@ public class AnonymousChatActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         chatRef = db.collection("chat_messages");
+
+        // Retrieve username from Intent
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra("USERNAME")) {
+            currentUsername = intent.getStringExtra("USERNAME");
+        } else {
+            // Fallback if username is not provided (e.g., for testing)
+            currentUsername = "AnonymousUser_" + UUID.randomUUID().toString().substring(0, 4);
+            Log.w(TAG, "Username not provided in Intent. Using generated username: " + currentUsername);
+        }
 
         initViews();
         initListeners();
@@ -58,6 +72,7 @@ public class AnonymousChatActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerViewChat);
         messageInput = findViewById(R.id.editTextMessage);
         sendButton = findViewById(R.id.buttonSend);
+        clearChatButton = findViewById(R.id.buttonClearChat); // Initialize clear chat button
     }
 
     /**
@@ -70,13 +85,20 @@ public class AnonymousChatActivity extends AppCompatActivity {
                 sendMessage();
             }
         });
+
+        clearChatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clearAllMessages();
+            }
+        });
     }
 
     /**
      * Sets up the RecyclerView with its adapter and layout manager.
      */
     private void setupRecyclerView() {
-        chatAdapter = new ChatAdapter();
+        chatAdapter = new ChatAdapter(currentUsername); // Pass username to adapter
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(chatAdapter);
     }
@@ -97,10 +119,18 @@ public class AnonymousChatActivity extends AppCompatActivity {
                         }
 
                         for (DocumentChange dc : snapshots.getDocumentChanges()) {
-                            if (dc.getType() == DocumentChange.Type.ADDED) {
-                                ChatMessage message = dc.getDocument().toObject(ChatMessage.class);
-                                chatAdapter.addMessage(message);
-                                recyclerView.scrollToPosition(chatAdapter.getItemCount() - 1); // Scroll to bottom
+                            ChatMessage message = dc.getDocument().toObject(ChatMessage.class);
+                            switch (dc.getType()) {
+                                case ADDED:
+                                    chatAdapter.addMessage(message);
+                                    recyclerView.scrollToPosition(chatAdapter.getItemCount() - 1); // Scroll to bottom
+                                    break;
+                                case MODIFIED:
+                                    chatAdapter.updateMessage(message);
+                                    break;
+                                case REMOVED:
+                                    chatAdapter.removeMessage(message);
+                                    break;
                             }
                         }
                     }
@@ -117,12 +147,16 @@ public class AnonymousChatActivity extends AppCompatActivity {
             return;
         }
 
+        String messageId = UUID.randomUUID().toString(); // Generate unique ID for the message
+
         Map<String, Object> message = new HashMap<>();
+        message.put("messageId", messageId);
+        message.put("username", currentUsername);
         message.put("message", messageText);
         message.put("timestamp", FieldValue.serverTimestamp()); // Use server timestamp
 
-        chatRef.add(message)
-                .addOnSuccessListener(documentReference -> {
+        chatRef.document(messageId).set(message) // Use messageId as document ID
+                .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "Message sent successfully!");
                     messageInput.setText(""); // Clear input field
                 })
@@ -131,4 +165,22 @@ public class AnonymousChatActivity extends AppCompatActivity {
                     Toast.makeText(AnonymousChatActivity.this, "Failed to send message.", Toast.LENGTH_SHORT).show();
                 });
     }
+
+    /**
+     * Clears all messages from the chat.
+     */
+    private void clearAllMessages() {
+        chatRef.get().addOnSuccessListener(queryDocumentSnapshots -> {
+            for (int i = 0; i < queryDocumentSnapshots.getDocuments().size(); i++) {
+                queryDocumentSnapshots.getDocuments().get(i).getReference().delete()
+                        .addOnSuccessListener(aVoid -> Log.d(TAG, "Document successfully deleted!"))
+                        .addOnFailureListener(e -> Log.w(TAG, "Error deleting document", e));
+            }
+            Toast.makeText(AnonymousChatActivity.this, "Chat cleared!", Toast.LENGTH_SHORT).show();
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Error getting documents to clear chat", e);
+            Toast.makeText(AnonymousChatActivity.this, "Failed to clear chat.", Toast.LENGTH_SHORT).show();
+        });
+    }
 }
+

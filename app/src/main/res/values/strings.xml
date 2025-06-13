@@ -97,6 +97,8 @@
     <string name="audio_complete">Audio playback complete</string>
     <string name="chat_input_hint">Type your message...</string>
     <string name="chat_send_button">Send</string>
+    <string name="clear_chat_button">Clear Chat</string>
+    <string name="edit_button">Edit</string>
 
     <string name="planner_description">Organize tasks, set goals, and track steps.</string>
     <string name="mood_tracker_description">Log your mood, stress, and journal thoughts.</string>
