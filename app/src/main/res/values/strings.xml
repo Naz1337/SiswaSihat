@@ -108,4 +108,5 @@
     <string name="breathing_description">Follow guided exercises to calm your mind.</string>
     <string name="mental_health_quiz_description">Take a quick self-assessment for personal insights.</string>
     <string name="focus_zone_description">Block distractions with a dedicated focus timer.</string>
+    <string name="learn_more_breathing">Learn More...</string>
 </resources>
