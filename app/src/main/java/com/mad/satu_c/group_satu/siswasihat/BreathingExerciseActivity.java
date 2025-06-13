@@ -1,6 +1,8 @@
 package com.mad.satu_c.group_satu.siswasihat;
 
 import android.os.Bundle;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
@@ -21,6 +23,7 @@ public class BreathingExerciseActivity extends AppCompatActivity {
     private TextView tvBreathingStatus;
     private TextView tvTimer;
     private Button btnStartExercise;
+    private TextView textViewLearnMore; // Added
     private FirebaseFirestore db;
     private CountDownTimer countDownTimer;
 
@@ -37,6 +40,7 @@ public class BreathingExerciseActivity extends AppCompatActivity {
         tvBreathingStatus = findViewById(R.id.tvBreathingStatus);
         tvTimer = findViewById(R.id.tvTimer);
         btnStartExercise = findViewById(R.id.btnStartExercise);
+        textViewLearnMore = findViewById(R.id.textViewLearnMore); // Added
     }
 
     private void initListeners() {
@@ -44,6 +48,16 @@ public class BreathingExerciseActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startBreathingExercise();
+            }
+        });
+
+        textViewLearnMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String url = "https://www.youtube.com/watch?v=LiUnFJ8P4gM";
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(url));
+                startActivity(intent);
             }
         });
     }

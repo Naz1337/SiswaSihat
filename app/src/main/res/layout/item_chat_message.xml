@@ -6,14 +6,45 @@
     android:padding="8dp">
 
     <TextView
-        android:id="@+id/messageTextView"
+        android:id="@+id/usernameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/chat_bubble_background"
-        android:padding="12dp"
-        android:textColor="@android:color/white"
-        android:textSize="16sp"
-        android:text="Sample Message" />
+        android:layout_marginStart="4dp"
+        android:textColor="@color/primary_text"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:text="Username"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="4dp">
+
+        <TextView
+            android:id="@+id/messageTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/chat_bubble_background"
+            android:padding="12dp"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:text="Sample Message" />
+
+        <Button
+            android:id="@+id/buttonEditMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/edit_button"
+            android:visibility="gone"
+            android:background="@drawable/chat_bubble_background"
+            android:textColor="@android:color/white"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:minHeight="36dp" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/timestampTextView"

@@ -83,7 +83,7 @@ public class DashboardAdapter extends RecyclerView.Adapter<DashboardAdapter.View
                     intent.putExtra("USERNAME", username); // Pass the username
                     activity.startActivity(intent);
                 } else if (featureName.equals(activity.getString(R.string.mental_health_quiz))) {
-                    Intent intent = new Intent(activity, AnxietyQuizActivity.class);
+                    Intent intent = new Intent(activity, QuizHistoryActivity.class);
                     intent.putExtra("USERNAME", username); // Pass the username
                     activity.startActivity(intent);
                 } else if (featureName.equals(activity.getString(R.string.focus_zone))) {

@@ -69,13 +69,13 @@ public class SosHelpActivity extends Activity implements LocationListener {
             @Override
             public void onClick(View v) {
                 // Implicit intent to dial a hotline number
-                Intent dialIntent = new Intent(Intent.ACTION_DIAL);
-                dialIntent.setData(Uri.parse("tel:" + getString(R.string.sos_hotline_number)));
+                Intent viewIntent = new Intent(Intent.ACTION_VIEW);
+                viewIntent.setData(Uri.parse("https://www.youtube.com/shorts/XsS5DgvS3iM"));
                 // Check if an app can handle this intent
-                if (dialIntent.resolveActivity(getPackageManager()) != null) {
-                    startActivity(dialIntent);
+                if (viewIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(viewIntent);
                 } else {
-                    Toast.makeText(SosHelpActivity.this, R.string.sos_hotline_error, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SosHelpActivity.this, "No application can handle this request.", Toast.LENGTH_SHORT).show();
                 }
             }
         });

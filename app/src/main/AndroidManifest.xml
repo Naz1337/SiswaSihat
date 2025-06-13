@@ -46,6 +46,9 @@
             android:name=".QuizResultActivity"
             android:exported="false" />
         <activity
+            android:name=".QuizHistoryActivity"
+            android:exported="false" />
+        <activity
             android:name=".FocusZoneActivity"
             android:exported="false" />
         <activity
