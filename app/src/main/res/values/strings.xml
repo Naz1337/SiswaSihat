@@ -36,6 +36,7 @@
         <item>@string/breathing</item>
         <item>@string/mental_health_quiz</item>
         <item>@string/focus_zone</item>
+        <item>@string/dashboard_youtube_title</item>
 
     </string-array>
     <string name="mood_tracker_title">Mood Tracker</string>
@@ -126,4 +127,6 @@
     <string name="mental_health_quiz_description">Take a quick self-assessment for personal insights.</string>
     <string name="focus_zone_description">Block distractions with a dedicated focus timer.</string>
     <string name="learn_more_breathing">Learn More...</string>
+    <string name="dashboard_youtube_title">Health Video</string>
+    <string name="dashboard_youtube_description">Watch a TED talk to learn about mental wellness.</string>
 </resources>

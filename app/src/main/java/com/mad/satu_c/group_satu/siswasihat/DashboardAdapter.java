@@ -1,6 +1,7 @@
 package com.mad.satu_c.group_satu.siswasihat;
 
 import android.content.Intent;
+import android.net.Uri; // Import Uri
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -108,6 +109,9 @@ public class DashboardAdapter extends RecyclerView.Adapter<DashboardAdapter.View
                 else if (featureName.equals(activity.getString(R.string.chill_space))) {
                     Intent intent = new Intent(activity, AudioPlayerActivity.class);
                     intent.putExtra("USERNAME", username); // Pass the username
+                    activity.startActivity(intent);
+                } else if (featureName.equals(activity.getString(R.string.dashboard_youtube_title))) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=rkZl2gsLUp4"));
                     activity.startActivity(intent);
                 }
                 // TODO: Add else if for other features as they are implemented
