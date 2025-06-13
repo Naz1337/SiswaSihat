@@ -97,6 +97,17 @@
     <string name="audio_complete">Audio playback complete</string>
     <string name="chat_input_hint">Type your message...</string>
     <string name="chat_send_button">Send</string>
+    <string name="add_audio">Add Audio</string>
+    <string name="add_audio_message">Add new audio file</string>
+    <string name="audio_added">Audio added successfully</string>
+    <string name="edit_audio_name">Edit Audio Name</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="enter_audio_name">Enter audio name</string>
+    <string name="audio_saved">Audio saved to Firestore</string>
+    <string name="error_saving_audio">Error saving audio to Firestore</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
 
     <string name="planner_description">Organize tasks, set goals, and track steps.</string>
     <string name="mood_tracker_description">Log your mood, stress, and journal thoughts.</string>

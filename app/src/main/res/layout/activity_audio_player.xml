@@ -5,34 +5,23 @@
     android:layout_height="match_parent"
     android:padding="@dimen/default_margin">
 
-    <Button
-        android:id="@+id/btnPlay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/play"
-        app:layout_constraintBottom_toTopOf="@+id/btnPause"
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/btnAddAudio"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/btnPause"
+        android:id="@+id/btnAddAudio"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/pause"
-        app:layout_constraintBottom_toTopOf="@+id/btnStop"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnPlay" />
-
-    <Button
-        android:id="@+id/btnStop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/stop"
+        android:text="@string/add_audio"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnPause" />
+        app:layout_constraintTop_toBottomOf="@+id/listView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout> 
