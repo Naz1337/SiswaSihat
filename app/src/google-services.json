@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "834023594515",
+    "project_id": "siswa-sihat",
+    "storage_bucket": "siswa-sihat.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:834023594515:android:7d82dde669b7894b567de6",
+        "android_client_info": {
+          "package_name": "com.mad.satu_c.group_satu.siswasihat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEDEMJLvGW17t_kjzBJMZf9KXOC6-TnpU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

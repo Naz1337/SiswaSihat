@@ -57,20 +57,35 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
     private Sensor stepSensor;
     private boolean isStepSensorPresent;
     private int currentSteps = 0;
-    private long lastResetDay = 0; // Store the day of the year when steps were last reset
+    private long lastResetDay = 0;
+
+    // Enhanced sensor support
+    private boolean useStepCounter = false;
+    private boolean useAccelerometer = false;
+    private int initialStepCount = 0; // For TYPE_STEP_COUNTER
+    private boolean isFirstStepCounterReading = true;
+
+    // Accelerometer-based step detection
+    private float lastAccelValue = 0;
+    private float currentAccelValue = 0;
+    private float shake = 0;
+    private boolean stepDetected = false;
+    private long lastStepTime = 0;
+    private static final float STEP_THRESHOLD = 12.0f;
+    private static final long STEP_DELAY_MS = 500; // Minimum time between steps
 
     private TextView textViewStepsToday;
     private TextView textViewStepGoal;
     private ProgressBar progressBarSteps;
     private Button buttonSetStepGoal;
     private TextView textViewSensorStatus;
+    private Button buttonManualStep; // For testing/manual increment
 
     private SharedPreferences sharedPreferences;
     private static final String PREF_NAME = "StepCounterPrefs";
     private static final String PREF_CURRENT_STEPS = "currentSteps";
     private static final String PREF_LAST_RESET_DAY = "lastResetDay";
     private static final String PREF_STEP_GOAL = "stepGoal";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +96,7 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
         username = getIntent().getStringExtra("USERNAME");
         if (username == null) {
             Toast.makeText(this, "Error: Username not found.", Toast.LENGTH_SHORT).show();
-            finish(); // Close activity if no username
+            finish();
             return;
         }
 
@@ -98,7 +113,7 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
         // Load events
         loadEvents();
 
-        // Initialize Step Counter
+        // Initialize Step Counter with multiple sensor support
         initStepCounter();
     }
 
@@ -106,49 +121,19 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
     protected void onResume() {
         super.onResume();
         if (isStepSensorPresent) {
-            if (sensorManager == null) {
-                Log.e(TAG, "SensorManager is null in onResume(), re-initializing.");
-                sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-            }
-
-            if (sensorManager != null) {
-                // Re-check sensor availability at registration time
-                Sensor currentSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
-                if (currentSensor == null) {
-                    Log.e(TAG, "Step detector sensor no longer available in onResume().");
-                    isStepSensorPresent = false; // Update flag if sensor disappeared
-                    textViewSensorStatus.setText("Sensor Unavailable: Sensor disappeared");
-                } else {
-                    Log.d(TAG, "Attempting to register step detector listener with delay: " + SensorManager.SENSOR_DELAY_NORMAL);
-                    boolean registered = sensorManager.registerListener(this, currentSensor, SensorManager.SENSOR_DELAY_NORMAL);
-                    if (registered) {
-                        Log.d(TAG, "Step detector listener registered successfully in onResume().");
-                        textViewSensorStatus.setText("Sensor Status: Active");
-                    } else {
-                        Log.e(TAG, "Failed to register step detector listener in onResume(). Possible reasons: " +
-                                "1. Sensor already registered (unlikely if onPause() works), " +
-                                "2. Insufficient permissions (unlikely for step detector), " +
-                                "3. Sensor temporarily unavailable or busy.");
-                        textViewSensorStatus.setText("Sensor Status: Busy - Close other fitness apps");
-                        Toast.makeText(this, "Sensor busy - check other apps", Toast.LENGTH_LONG).show();
-                    }
-                }
-            } else {
-                Log.e(TAG, "Sensor service unavailable after re-initialization in onResume().");
-                textViewSensorStatus.setText("Sensor Unavailable: Service not found");
-            }
+            registerStepSensor();
         }
-        loadStepData(); // Load step data when activity resumes
+        loadStepData();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (isStepSensorPresent) {
+        if (isStepSensorPresent && sensorManager != null) {
             sensorManager.unregisterListener(this);
-            Log.d(TAG, "Step detector listener unregistered in onPause()");
+            Log.d(TAG, "Step sensor listener unregistered in onPause()");
         }
-        saveStepData(); // Save step data when activity pauses
+        saveStepData();
     }
 
     private void initViews() {
@@ -164,13 +149,16 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
         progressBarSteps = findViewById(R.id.progressBarSteps);
         buttonSetStepGoal = findViewById(R.id.buttonSetStepGoal);
         textViewSensorStatus = findViewById(R.id.textViewSensorStatus);
+
+        // Add manual step button (you'll need to add this to your layout)
+        // buttonManualStep = findViewById(R.id.buttonManualStep);
     }
 
     private void initListeners() {
         buttonAddEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showAddEventDialog(null); // Pass null for adding new event
+                showAddEventDialog(null);
             }
         });
 
@@ -178,7 +166,7 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Map<String, Object> event = eventsList.get(position);
-                showAddEventDialog(event); // Pass event for editing
+                showAddEventDialog(event);
             }
         });
 
@@ -187,7 +175,7 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 Map<String, Object> event = eventsList.get(position);
                 showDeleteConfirmationDialog(event);
-                return true; // Consume the long click
+                return true;
             }
         });
 
@@ -197,63 +185,183 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
                 showSetStepGoalDialog();
             }
         });
+
+        // Manual step button for testing (optional)
+        /*
+        if (buttonManualStep != null) {
+            buttonManualStep.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    incrementStep(); // For testing purposes
+                }
+            });
+        }
+        */
     }
 
     private void initStepCounter() {
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        if (sensorManager != null) {
-            Log.d(TAG, "Checking for step detector sensor...");
-            stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
-            if (stepSensor == null) {
-                Toast.makeText(this, "Step Detector Sensor not available!", Toast.LENGTH_LONG).show();
-                isStepSensorPresent = false;
-                Log.e(TAG, "Step detector sensor not available on this device");
-                textViewSensorStatus.setText("Sensor Unavailable: Device lacks step detector");
-            } else {
-                isStepSensorPresent = true;
-                Log.d(TAG, "Step detector sensor available");
-                textViewSensorStatus.setText("Sensor Status: Ready");
-            }
-        } else {
+        if (sensorManager == null) {
             Toast.makeText(this, "Sensor service not available!", Toast.LENGTH_LONG).show();
             isStepSensorPresent = false;
-            Log.e(TAG, "Sensor service not available!");
             textViewSensorStatus.setText("Sensor Unavailable: Service not found");
+            return;
         }
-        loadStepData(); // Load initial step data
+
+        // Try different sensors in order of preference
+        Log.d(TAG, "Checking for available step sensors...");
+
+        // 1. Try Step Detector (most accurate for step counting)
+        stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+        if (stepSensor != null) {
+            isStepSensorPresent = true;
+            useStepCounter = false;
+            useAccelerometer = false;
+            Log.d(TAG, "Using STEP_DETECTOR sensor");
+            textViewSensorStatus.setText("Sensor: Step Detector (Best)");
+        } else {
+            // 2. Try Step Counter (cumulative steps since boot)
+            stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+            if (stepSensor != null) {
+                isStepSensorPresent = true;
+                useStepCounter = true;
+                useAccelerometer = false;
+                isFirstStepCounterReading = true;
+                Log.d(TAG, "Using STEP_COUNTER sensor");
+                textViewSensorStatus.setText("Sensor: Step Counter (Good)");
+            } else {
+                // 3. Fallback to Accelerometer
+                stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+                if (stepSensor != null) {
+                    isStepSensorPresent = true;
+                    useStepCounter = false;
+                    useAccelerometer = true;
+                    Log.d(TAG, "Using ACCELEROMETER sensor for step detection");
+                    textViewSensorStatus.setText("Sensor: Accelerometer (Fallback)");
+                } else {
+                    // No sensors available
+                    isStepSensorPresent = false;
+                    Log.e(TAG, "No step sensors available on this device");
+                    textViewSensorStatus.setText("No sensors available - Manual mode only");
+                    Toast.makeText(this, "No step sensors available. You can still manually track steps.", Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+
+        loadStepData();
         updateStepCounterUI();
+    }
+
+    private void registerStepSensor() {
+        if (sensorManager == null || stepSensor == null) {
+            Log.e(TAG, "Cannot register sensor - manager or sensor is null");
+            return;
+        }
+
+        int sensorDelay = useAccelerometer ? SensorManager.SENSOR_DELAY_NORMAL : SensorManager.SENSOR_DELAY_NORMAL;
+        boolean registered = sensorManager.registerListener(this, stepSensor, sensorDelay);
+
+        if (registered) {
+            Log.d(TAG, "Step sensor listener registered successfully");
+            String sensorType = useStepCounter ? "Step Counter" : (useAccelerometer ? "Accelerometer" : "Step Detector");
+            textViewSensorStatus.setText("Sensor: " + sensorType + " - Active");
+        } else {
+            Log.e(TAG, "Failed to register step sensor listener");
+            textViewSensorStatus.setText("Sensor: Registration Failed");
+            Toast.makeText(this, "Sensor registration failed - try closing other fitness apps", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        Log.d(TAG, "Sensor event received: " + event.sensor.getName() + " Type: " + event.sensor.getType());
         if (event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
-            currentSteps++; // Increment for each detected step
+            // Direct step detection
+            incrementStep();
+            Log.d(TAG, "Step detected by STEP_DETECTOR");
 
-            Log.d(TAG, "Step detected. Current steps: " + currentSteps);
+        } else if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER && useStepCounter) {
+            // Handle cumulative step counter
+            int totalSteps = (int) event.values[0];
 
-            // Check for daily reset
-            Calendar calendar = Calendar.getInstance();
-            long currentDay = calendar.get(Calendar.DAY_OF_YEAR);
-
-            if (currentDay != lastResetDay) {
-                // New day, reset steps
-                currentSteps = 0;
-                lastResetDay = currentDay;
-                saveStepData(); // Save new reset day
-                Toast.makeText(this, "Daily step count reset!", Toast.LENGTH_SHORT).show();
+            if (isFirstStepCounterReading) {
+                initialStepCount = totalSteps;
+                isFirstStepCounterReading = false;
+                Log.d(TAG, "Initial step counter reading: " + initialStepCount);
+            } else {
+                int newSteps = totalSteps - initialStepCount;
+                if (newSteps > currentSteps) {
+                    currentSteps = newSteps;
+                    updateStepDisplay();
+                    Log.d(TAG, "Step counter updated: " + currentSteps);
+                }
             }
 
-            textViewStepsToday.setText(String.valueOf(currentSteps));
-            updateProgressBar(currentSteps);
-            saveStepData(); // Save steps after each increment
-            textViewSensorStatus.setText("Sensor Status: Active - " + currentSteps + " steps");
+        } else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER && useAccelerometer) {
+            // Accelerometer-based step detection
+            detectStepFromAccelerometer(event.values);
         }
+    }
+
+    private void detectStepFromAccelerometer(float[] values) {
+        float x = values[0];
+        float y = values[1];
+        float z = values[2];
+
+        // Calculate magnitude of acceleration
+        lastAccelValue = currentAccelValue;
+        currentAccelValue = (float) Math.sqrt(x * x + y * y + z * z);
+        float delta = currentAccelValue - lastAccelValue;
+        shake = shake * 0.9f + delta;
+
+        // Detect step based on threshold and timing
+        long currentTime = System.currentTimeMillis();
+        if (Math.abs(shake) > STEP_THRESHOLD && !stepDetected &&
+                (currentTime - lastStepTime) > STEP_DELAY_MS) {
+
+            stepDetected = true;
+            lastStepTime = currentTime;
+            incrementStep();
+            Log.d(TAG, "Step detected by ACCELEROMETER, shake: " + shake);
+
+            // Reset step detection flag after a short delay
+            new android.os.Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    stepDetected = false;
+                }
+            }, STEP_DELAY_MS / 2);
+        }
+    }
+
+    private void incrementStep() {
+        currentSteps++;
+
+        // Check for daily reset
+        Calendar calendar = Calendar.getInstance();
+        long currentDay = calendar.get(Calendar.DAY_OF_YEAR);
+
+        if (currentDay != lastResetDay) {
+            currentSteps = 1; // Start with the current step
+            lastResetDay = currentDay;
+            saveStepData();
+            Toast.makeText(this, "Daily step count reset!", Toast.LENGTH_SHORT).show();
+        }
+
+        updateStepDisplay();
+        saveStepData();
+    }
+
+    private void updateStepDisplay() {
+        textViewStepsToday.setText(String.valueOf(currentSteps));
+        updateProgressBar(currentSteps);
+
+        String sensorType = useStepCounter ? "Counter" : (useAccelerometer ? "Accel" : "Detector");
+        textViewSensorStatus.setText("Sensor: " + sensorType + " - " + currentSteps + " steps");
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // Not used for step counter
+        Log.d(TAG, "Sensor accuracy changed: " + accuracy);
     }
 
     private void updateProgressBar(int currentSteps) {
@@ -262,7 +370,7 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
             progressBarSteps.setMax(stepGoal);
             progressBarSteps.setProgress(Math.min(currentSteps, stepGoal));
         } else {
-            progressBarSteps.setMax(1); // Avoid division by zero if goal is 0
+            progressBarSteps.setMax(1);
             progressBarSteps.setProgress(0);
         }
     }
@@ -277,7 +385,6 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
     }
 
     private void saveStepData() {
-        // This method will now trigger a Firestore update
         updateUserStepDataInFirestore();
     }
 
@@ -294,28 +401,26 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
                             lastResetDay = ((Long) userData.getOrDefault("lastResetDay", 0L)).longValue();
                             int stepGoal = ((Long) userData.getOrDefault("stepGoal", 0L)).intValue();
 
-                            // Update SharedPreferences for local access (optional, but good for consistency)
                             SharedPreferences.Editor editor = sharedPreferences.edit();
                             editor.putInt(PREF_CURRENT_STEPS, currentSteps);
                             editor.putLong(PREF_LAST_RESET_DAY, lastResetDay);
                             editor.putInt(PREF_STEP_GOAL, stepGoal);
                             editor.apply();
 
-                            Log.d(TAG, "Step data loaded from Firestore: currentSteps=" + currentSteps + ", lastResetDay=" + lastResetDay + ", stepGoal=" + stepGoal);
+                            Log.d(TAG, "Step data loaded from Firestore: currentSteps=" + currentSteps);
 
-                            // Check for daily reset on load as well
+                            // Check for daily reset on load
                             Calendar calendar = Calendar.getInstance();
                             long currentDay = calendar.get(Calendar.DAY_OF_YEAR);
                             if (currentDay != lastResetDay) {
-                                currentSteps = 0; // Reset steps for the new day
+                                currentSteps = 0;
                                 lastResetDay = currentDay;
-                                updateUserStepDataInFirestore(); // Save new reset day to Firestore
+                                updateUserStepDataInFirestore();
                                 Toast.makeText(PlannerActivity.this, "Daily step count reset!", Toast.LENGTH_SHORT).show();
                             }
                             updateStepCounterUI();
                         } else {
                             Log.d(TAG, "User document not found for step data.");
-                            // Initialize with default values if user data not found
                             currentSteps = 0;
                             lastResetDay = 0;
                             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -348,7 +453,7 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
                             Map<String, Object> updates = new HashMap<>();
                             updates.put("currentSteps", currentSteps);
                             updates.put("lastResetDay", lastResetDay);
-                            updates.put("stepGoal", sharedPreferences.getInt(PREF_STEP_GOAL, 0)); // Get goal from SharedPreferences for now
+                            updates.put("stepGoal", sharedPreferences.getInt(PREF_STEP_GOAL, 0));
 
                             db.collection("users").document(userId)
                                     .update(updates)
@@ -393,8 +498,8 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
                     int newGoal = Integer.parseInt(goalStr);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putInt(PREF_STEP_GOAL, newGoal);
-                    editor.apply(); // Save to SharedPreferences first
-                    updateUserStepDataInFirestore(); // Then update Firestore
+                    editor.apply();
+                    updateUserStepDataInFirestore();
                     updateStepCounterUI();
                     Toast.makeText(PlannerActivity.this, "Step goal set to " + newGoal, Toast.LENGTH_SHORT).show();
                 } else {
@@ -406,6 +511,7 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
         builder.show();
     }
 
+    // [Rest of the existing methods for event management remain the same]
     private void showAddEventDialog(final Map<String, Object> eventToEdit) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
@@ -418,7 +524,6 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
         final Calendar calendar = Calendar.getInstance();
 
         if (eventToEdit != null) {
-            // Populate fields for editing
             builder.setTitle("Edit Event");
             editTextTitle.setText((String) eventToEdit.get("title"));
             editTextDescription.setText((String) eventToEdit.get("description"));
@@ -431,9 +536,8 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
         } else {
             builder.setTitle("Add New Event");
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-            textViewDate.setText(sdf.format(calendar.getTime())); // Set current date as default
+            textViewDate.setText(sdf.format(calendar.getTime()));
         }
-
 
         textViewDate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -462,11 +566,9 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
                 }
 
                 if (eventToEdit != null) {
-                    // Update existing event
-                    String eventId = (String) eventToEdit.get("id"); // Assuming 'id' is stored in the map
+                    String eventId = (String) eventToEdit.get("id");
                     updateEvent(eventId, title, description, date);
                 } else {
-                    // Add new event
                     addEvent(title, description, date);
                 }
             }
@@ -490,14 +592,10 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
                 .show();
     }
 
-
-    /**
-     * Loads planner events from Firestore for the current user.
-     */
     private void loadEvents() {
         db.collection("planner_events")
                 .whereEqualTo("userId", username)
-                .orderBy("date") // Order by date for better display
+                .orderBy("date")
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
@@ -508,10 +606,9 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
 
                         for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                             Map<String, Object> event = document.getData();
-                            event.put("id", document.getId()); // Store document ID for update/delete
+                            event.put("id", document.getId());
                             eventsList.add(event);
 
-                            // Display event in ListView
                             String title = (String) event.get("title");
                             String description = (String) event.get("description");
                             com.google.firebase.Timestamp timestamp = (com.google.firebase.Timestamp) event.get("date");
@@ -531,18 +628,12 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
                 });
     }
 
-    /**
-     * Adds a new event to Firestore.
-     * @param title The title of the event.
-     * @param description The description of the event.
-     * @param date The date of the event.
-     */
     private void addEvent(String title, String description, Date date) {
         Map<String, Object> event = new HashMap<>();
         event.put("userId", username);
         event.put("title", title);
         event.put("description", description);
-        event.put("date", new com.google.firebase.Timestamp(date)); // Use Firebase Timestamp
+        event.put("date", new com.google.firebase.Timestamp(date));
 
         db.collection("planner_events")
                 .add(event)
@@ -551,7 +642,7 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
                     public void onSuccess(DocumentReference documentReference) {
                         Toast.makeText(PlannerActivity.this, "Event added successfully!", Toast.LENGTH_SHORT).show();
                         Log.d(TAG, "Event added with ID: " + documentReference.getId());
-                        loadEvents(); // Reload events to update UI
+                        loadEvents();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -563,13 +654,6 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
                 });
     }
 
-    /**
-     * Updates an existing event in Firestore.
-     * @param eventId The ID of the event to update.
-     * @param title The new title of the event.
-     * @param description The new description of the event.
-     * @param date The new date of the event.
-     */
     private void updateEvent(String eventId, String title, String description, Date date) {
         Map<String, Object> eventUpdates = new HashMap<>();
         eventUpdates.put("title", title);
@@ -583,7 +667,7 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
                     public void onSuccess(Void aVoid) {
                         Toast.makeText(PlannerActivity.this, "Event updated successfully!", Toast.LENGTH_SHORT).show();
                         Log.d(TAG, "Event updated with ID: " + eventId);
-                        loadEvents(); // Reload events to update UI
+                        loadEvents();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -595,10 +679,6 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
                 });
     }
 
-    /**
-     * Deletes an event from Firestore.
-     * @param eventId The ID of the event to delete.
-     */
     private void deleteEvent(String eventId) {
         db.collection("planner_events").document(eventId)
                 .delete()
@@ -607,7 +687,7 @@ public class PlannerActivity extends AppCompatActivity implements SensorEventLis
                     public void onSuccess(Void aVoid) {
                         Toast.makeText(PlannerActivity.this, "Event deleted successfully!", Toast.LENGTH_SHORT).show();
                         Log.d(TAG, "Event deleted with ID: " + eventId);
-                        loadEvents(); // Reload events to update UI
+                        loadEvents();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {

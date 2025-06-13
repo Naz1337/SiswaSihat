@@ -51,6 +51,14 @@ public class FocusSessionFragment extends Fragment {
         return view;
     }
 
+    // ----------------- FIX -----------------
+    // Start the timer here, after the view has been created.
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        startTimer();
+    }
+
     public void startTimer() {
         countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) {
             @Override
@@ -62,14 +70,14 @@ public class FocusSessionFragment extends Fragment {
             @Override
             public void onFinish() {
                 timerRunning = false;
-                if (textViewStatus != null && getView() != null) {
+                if (textViewStatus != null) {
                     textViewStatus.setText("Session Complete!");
                 }
-                // TODO: Notify activity that session is complete
+                // Optional: Notify activity that session is complete
             }
         }.start();
         timerRunning = true;
-        if (textViewStatus != null && getView() != null) {
+        if (textViewStatus != null) {
             textViewStatus.setText("Session Active");
         }
     }
@@ -79,17 +87,17 @@ public class FocusSessionFragment extends Fragment {
             countDownTimer.cancel();
         }
         timerRunning = false;
-        if (textViewStatus != null && getView() != null) {
+        if (textViewStatus != null) {
             textViewStatus.setText("Phone Picked Up!");
         }
     }
 
     public void resumeTimer() {
-        startTimer();
+        startTimer(); // This will create a new timer with the remaining time
     }
 
     private void updateCountDownText() {
-        if (textViewTimer != null && getView() != null) {
+        if (textViewTimer != null) {
             int minutes = (int) (timeLeftInMillis / 1000) / 60;
             int seconds = (int) (timeLeftInMillis / 1000) % 60;
 

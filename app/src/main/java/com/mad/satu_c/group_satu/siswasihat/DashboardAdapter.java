@@ -72,6 +72,16 @@ public class DashboardAdapter extends RecyclerView.Adapter<DashboardAdapter.View
                     intent.putExtra("USERNAME", username); // Pass the username
                     activity.startActivity(intent);
                 }
+                else if (featureName.equals(activity.getString(R.string.sos))) {
+                    Intent intent = new Intent(activity, SosHelpActivity.class);
+                    intent.putExtra("USERNAME", username); // Pass the username
+                    activity.startActivity(intent);
+                }
+                else if (featureName.equals(activity.getString(R.string.breathing))) {
+                    Intent intent = new Intent(activity, BreathingExerciseActivity.class);
+                    intent.putExtra("USERNAME", username); // Pass the username
+                    activity.startActivity(intent);
+                }
                 // TODO: Add else if for other features as they are implemented
             }
         });

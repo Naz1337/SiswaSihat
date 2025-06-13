@@ -32,8 +32,8 @@ public class FocusZoneActivity extends AppCompatActivity implements SensorEventL
         // Initial fragment to show the setup screen
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new FocusSetupFragment())
-                .commit();
+                    .replace(R.id.fragment_container, new FocusSetupFragment())
+                    .commit();
         }
     }
 
@@ -48,9 +48,6 @@ public class FocusZoneActivity extends AppCompatActivity implements SensorEventL
             } else {
                 isProximitySensorPresent = true;
                 Log.d(TAG, "Proximity sensor: AVAILABLE. Max Range: " + proximitySensor.getMaximumRange() + " cm");
-                Log.d(TAG, "Proximity sensor: Resolution: " + proximitySensor.getResolution() + " cm");
-                Log.d(TAG, "Proximity sensor: Vendor: " + proximitySensor.getVendor());
-                Log.d(TAG, "Proximity sensor: Version: " + proximitySensor.getVersion());
             }
         } else {
             isProximitySensorPresent = false;
@@ -62,11 +59,10 @@ public class FocusZoneActivity extends AppCompatActivity implements SensorEventL
     @Override
     protected void onResume() {
         super.onResume();
-        if (isProximitySensorPresent && sessionStarted) {
+        // The listener should be active as long as a session is possible or in progress.
+        if (isProximitySensorPresent) {
             sensorManager.registerListener(this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
             Log.d(TAG, "onResume: Proximity sensor listener REGISTERED.");
-        } else if (isProximitySensorPresent && !sessionStarted) {
-            Log.d(TAG, "onResume: Proximity sensor listener NOT registered (session not started yet).");
         } else {
             Log.d(TAG, "onResume: Proximity sensor NOT present, listener not registered.");
         }
@@ -75,6 +71,7 @@ public class FocusZoneActivity extends AppCompatActivity implements SensorEventL
     @Override
     protected void onPause() {
         super.onPause();
+        // Always unregister when the activity is not in the foreground to save battery.
         if (isProximitySensorPresent) {
             sensorManager.unregisterListener(this);
             Log.d(TAG, "onPause: Proximity sensor listener UNREGISTERED.");
@@ -87,10 +84,10 @@ public class FocusZoneActivity extends AppCompatActivity implements SensorEventL
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
             float distance = event.values[0];
-            Log.d(TAG, "onSensorChanged: Proximity sensor distance: " + distance + " cm. Max Range: " + proximitySensor.getMaximumRange() + " cm.");
+            Log.d(TAG, "onSensorChanged: Proximity sensor distance: " + distance + " cm.");
 
             if (distance < proximitySensor.getMaximumRange()) { // Object is close (phone face down)
-                Log.d(TAG, "onSensorChanged: Phone is face down (distance < max range).");
+                Log.d(TAG, "onSensorChanged: Phone is face down.");
                 if (!sessionStarted) {
                     Log.d(TAG, "onSensorChanged: Session not started yet. Calling startFocusSession().");
                     startFocusSession();
@@ -98,17 +95,13 @@ public class FocusZoneActivity extends AppCompatActivity implements SensorEventL
                     Log.d(TAG, "onSensorChanged: Session started, timer paused. Resuming timer.");
                     focusSessionFragment.resumeTimer();
                     Toast.makeText(this, "Resuming focus session!", Toast.LENGTH_SHORT).show();
-                } else {
-                    Log.d(TAG, "onSensorChanged: Phone face down, session already active or timer running.");
                 }
             } else { // Object is far (phone picked up)
-                Log.d(TAG, "onSensorChanged: Phone is picked up (distance >= max range).");
+                Log.d(TAG, "onSensorChanged: Phone is picked up.");
                 if (sessionStarted && focusSessionFragment != null && focusSessionFragment.isTimerRunning()) {
                     Log.d(TAG, "onSensorChanged: Session active, timer running. Pausing timer.");
                     focusSessionFragment.pauseTimer();
                     Toast.makeText(this, "Put me down, you can do it!", Toast.LENGTH_LONG).show();
-                } else {
-                    Log.d(TAG, "onSensorChanged: Phone picked up, but session not active or timer not running.");
                 }
             }
         }
@@ -123,14 +116,10 @@ public class FocusZoneActivity extends AppCompatActivity implements SensorEventL
         this.focusDurationMinutes = duration;
         Log.d(TAG, "startInstructions: Transitioning to instructions fragment. Duration: " + focusDurationMinutes + " minutes.");
         getSupportFragmentManager().beginTransaction()
-            .replace(R.id.fragment_container, FocusInstructionsFragment.newInstance(focusDurationMinutes))
-            .commit();
+                .replace(R.id.fragment_container, FocusInstructionsFragment.newInstance(focusDurationMinutes))
+                .commit();
         sessionStarted = false; // Reset session started flag
-        // Register sensor listener here so it's active when instructions are shown
-        if (isProximitySensorPresent) {
-            sensorManager.registerListener(this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
-            Log.d(TAG, "startInstructions: Proximity sensor listener REGISTERED for instructions phase.");
-        }
+        // The onResume method will handle registering the listener
     }
 
     private void startFocusSession() {
@@ -138,14 +127,12 @@ public class FocusZoneActivity extends AppCompatActivity implements SensorEventL
         sessionStarted = true;
         focusSessionFragment = FocusSessionFragment.newInstance(focusDurationMinutes);
         getSupportFragmentManager().beginTransaction()
-            .replace(R.id.fragment_container, focusSessionFragment)
-            .commit();
-        focusSessionFragment.startTimer();
+                .replace(R.id.fragment_container, focusSessionFragment)
+                .commit();
         Toast.makeText(this, "Focus session started!", Toast.LENGTH_SHORT).show();
-        // Unregister sensor listener after session starts, as the fragment will manage its own state
-        if (isProximitySensorPresent) {
-            sensorManager.unregisterListener(this);
-            Log.d(TAG, "startFocusSession: Proximity sensor listener UNREGISTERED after session started.");
-        }
+        // ----------------- FIX -----------------
+        // DO NOT start the timer here. The fragment will start it itself.
+        // DO NOT unregister the sensor listener. The activity needs it to detect phone pickups.
+        // The listener will be correctly unregistered in onPause().
     }
 }

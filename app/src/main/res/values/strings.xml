@@ -35,6 +35,7 @@
         <item>@string/breathing</item>
         <item>@string/mental_health_quiz</item>
         <item>@string/focus_zone</item>
+
     </string-array>
     <string name="mood_tracker_title">Mood Tracker</string>
     <string name="mood_label">How are you feeling today?</string>
@@ -55,4 +56,36 @@
     <string name="interpretation_label">Interpretation:</string>
     <string name="retake_quiz_button">Retake Quiz</string>
     <string name="back_to_dashboard_button">Back to Dashboard</string>
+
+    <string-array name="motivational_quotes">
+        <item>Believe you can and you\'re halfway there.</item>
+        <item>The only way to do great work is to love what you do.</item>
+        <item>Success is not final, failure is not fatal: it is the courage to continue that counts.</item>
+        <item>The secret of getting ahead is getting started.</item>
+        <item>Don\'t watch the clock; do what it does. Keep going.</item>
+        <item>It does not matter how slowly you go as long as you do not stop.</item>
+        <item>The future belongs to those who believe in the beauty of their dreams.</item>
+        <item>Well done is better than well said.</item>
+    </string-array>
+
+
+    <string name="sos_help_title">SOS Help</string>
+    <string name="sos_coordinates_label">Your Current Coordinates:</string>
+    <string name="sos_call_hotline">Call Support Hotline</string>
+    <string name="sos_show_on_map">Show Safe Place on Map</string>
+    <string name="sos_coordinates_loading">Acquiring location...</string>
+    <string name="sos_location_unavailable">Location unavailable</string>
+    <string name="sos_permission_denied">Location permission denied</string>
+    <string name="sos_hotline_number">112</string> <!-- Example hotline number -->
+    <string name="sos_hotline_error">Could not open dialer.</string>
+    <string name="sos_map_error">Could not open maps application.</string>
+
+    <!-- Breathing Exercise Activity -->
+    <string name="breathing_in">Breathe In</string>
+    <string name="breathing_hold">Hold</string>
+    <string name="breathing_out">Breathe Out</string>
+    <string name="breathing_complete">Breathing Exercise Complete</string>
+    <string name="start_exercise">Start Exercise</string>
+    <string name="exercise_logged">Exercise logged successfully!</string>
+    <string name="error_logging_exercise">Error logging exercise</string>
 </resources>
