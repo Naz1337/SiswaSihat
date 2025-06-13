@@ -8,7 +8,8 @@
     <string name="username_hint">Username</string>
     <string name="password_hint">Password</string>
     <string name="login_button_text">Login</string>
-    <string name="register_button_text">Register</string>
+    <string name="register_button_text">Regis
+        ter</string>
     <string name="register_link_text">Create new account</string>
     <string name="login_link_text">Already have an account? Login</string>
     <string name="login_failed">Invalid credentials</string>
@@ -96,4 +97,13 @@
     <string name="audio_complete">Audio playback complete</string>
     <string name="chat_input_hint">Type your message...</string>
     <string name="chat_send_button">Send</string>
+
+    <string name="planner_description">Organize tasks, set goals, and track steps.</string>
+    <string name="mood_tracker_description">Log your mood, stress, and journal thoughts.</string>
+    <string name="chill_space_description">Unwind with calming audio and meditations.</string>
+    <string name="sos_description">Instantly access emergency contacts and support.</string>
+    <string name="chatroom_description">Connect with peers in a safe, anonymous space.</string>
+    <string name="breathing_description">Follow guided exercises to calm your mind.</string>
+    <string name="mental_health_quiz_description">Take a quick self-assessment for personal insights.</string>
+    <string name="focus_zone_description">Block distractions with a dedicated focus timer.</string>
 </resources>

@@ -48,7 +48,25 @@ public class DashboardAdapter extends RecyclerView.Adapter<DashboardAdapter.View
         String featureName = localDataSet[position];
         viewHolder.tvFeatureName.setText(featureName);
         // Set description based on featureName if needed, or leave generic
-        viewHolder.tvFeatureDescription.setText("Short description of the feature");
+        String featureDescription = "";
+        if (featureName.equals(activity.getString(R.string.planner))) {
+            featureDescription = activity.getString(R.string.planner_description);
+        } else if (featureName.equals(activity.getString(R.string.mood_tracker))) {
+            featureDescription = activity.getString(R.string.mood_tracker_description);
+        } else if (featureName.equals(activity.getString(R.string.chill_space))) {
+            featureDescription = activity.getString(R.string.chill_space_description);
+        } else if (featureName.equals(activity.getString(R.string.sos))) {
+            featureDescription = activity.getString(R.string.sos_description);
+        } else if (featureName.equals(activity.getString(R.string.chatroom))) {
+            featureDescription = activity.getString(R.string.chatroom_description);
+        } else if (featureName.equals(activity.getString(R.string.breathing))) {
+            featureDescription = activity.getString(R.string.breathing_description);
+        } else if (featureName.equals(activity.getString(R.string.mental_health_quiz))) {
+            featureDescription = activity.getString(R.string.mental_health_quiz_description);
+        } else if (featureName.equals(activity.getString(R.string.focus_zone))) {
+            featureDescription = activity.getString(R.string.focus_zone_description);
+        }
+        viewHolder.tvFeatureDescription.setText(featureDescription);
 
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
