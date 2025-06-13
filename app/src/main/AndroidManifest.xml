@@ -54,7 +54,9 @@
         <activity
             android:name=".BreathingExerciseActivity"
             android:exported="false" />
-
+        <activity
+            android:name=".AnonymousChatActivity"
+            android:exported="false" />
 
     </application>
 

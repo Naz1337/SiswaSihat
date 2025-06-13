@@ -9,6 +9,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import com.mad.satu_c.group_satu.siswasihat.AnonymousChatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class DashboardAdapter extends RecyclerView.Adapter<DashboardAdapter.ViewHolder> {
@@ -79,6 +80,10 @@ public class DashboardAdapter extends RecyclerView.Adapter<DashboardAdapter.View
                 }
                 else if (featureName.equals(activity.getString(R.string.breathing))) {
                     Intent intent = new Intent(activity, BreathingExerciseActivity.class);
+                    intent.putExtra("USERNAME", username); // Pass the username
+                    activity.startActivity(intent);
+                } else if (featureName.equals(activity.getString(R.string.chatroom))) {
+                    Intent intent = new Intent(activity, AnonymousChatActivity.class);
                     intent.putExtra("USERNAME", username); // Pass the username
                     activity.startActivity(intent);
                 }

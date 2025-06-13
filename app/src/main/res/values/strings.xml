@@ -88,4 +88,6 @@
     <string name="start_exercise">Start Exercise</string>
     <string name="exercise_logged">Exercise logged successfully!</string>
     <string name="error_logging_exercise">Error logging exercise</string>
+    <string name="chat_input_hint">Type your message...</string>
+    <string name="chat_send_button">Send</string>
 </resources>
