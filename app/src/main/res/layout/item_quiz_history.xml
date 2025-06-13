@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/default_margin"
+    android:layout_marginEnd="@dimen/default_margin"
+    android:layout_marginTop="@dimen/grid_spacing"
+    android:layout_marginBottom="@dimen/grid_spacing"
+    app:cardElevation="4dp"
+    app:cardCornerRadius="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/default_margin"
+        android:background="?attr/selectableItemBackground">
+
+        <TextView
+            android:id="@+id/textViewQuizScore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="@dimen/text_secondary"
+            android:text="Score: 80" /> <!-- Placeholder text -->
+
+        <TextView
+            android:id="@+id/textViewQuizDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_description"
+            android:text="Date: 2023-10-26" /> <!-- Placeholder text -->
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

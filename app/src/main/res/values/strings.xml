@@ -57,6 +57,12 @@
     <string name="interpretation_label">Interpretation:</string>
     <string name="retake_quiz_button">Retake Quiz</string>
     <string name="back_to_dashboard_button">Back to Dashboard</string>
+    <string name="quiz_history_title">Quiz History</string>
+    <string name="start_new_quiz_button">Start New Quiz</string>
+    <string name="delete_quiz_record_title">Delete Quiz Record</string>
+    <string name="delete_quiz_record_message">Are you sure you want to delete this quiz record?</string>
+    <string name="delete_button_text">Delete</string>
+    <string name="cancel_button_text">Cancel</string>
 
     <string-array name="motivational_quotes">
         <item>Believe you can and you\'re halfway there.</item>
