@@ -11,4 +11,7 @@
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
     <color name="colorSecondary">#008577</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="chat_background_color">#F0F4F8</color>
+    <color name="chat_bubble_color">#4A90E2</color>
 </resources>

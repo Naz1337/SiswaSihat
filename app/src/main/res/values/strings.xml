@@ -94,4 +94,6 @@
     <string name="pause">Pause</string>
     <string name="stop">Stop</string>
     <string name="audio_complete">Audio playback complete</string>
+    <string name="chat_input_hint">Type your message...</string>
+    <string name="chat_send_button">Send</string>
 </resources>
